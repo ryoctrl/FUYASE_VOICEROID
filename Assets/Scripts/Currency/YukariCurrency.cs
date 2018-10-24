@@ -8,13 +8,13 @@ public class YukariCurrency : AbstractCurrency {
 	// Use this for initialization
 	void Start () {
 		name =  "YKR";
-		assetsText = GameObject.Find("YukariAssetsText").GetComponent<Text>();
+		myColor = new Color32(215, 179, 227, 255);
 		Initialize();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		assetsText.text = assets.ToString("F2");
+		UpdateTexts();
 	}
 
 	public void ClickOneBuyButton() {

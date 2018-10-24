@@ -8,13 +8,13 @@ public class KedamaCurrency : AbstractCurrency {
 	// Use this for initialization
 	void Start () {
 		name = "KDM";
-		assetsText = GameObject.Find("KedamaAssetsText").GetComponent<Text>();
+		myColor = Color.yellow;
 		Initialize();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		assetsText.text = assets.ToString("F2");
+		UpdateTexts();
 	}
 
 	public void ClickOneBuyButton() {

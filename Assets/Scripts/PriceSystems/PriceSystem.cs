@@ -12,7 +12,7 @@ public abstract class PriceSystem : MonoBehaviour {
 
 	public void Start () {
 		characterImage = gameObject.GetComponentInChildren<Image>();
-		priceText = gameObject.GetComponentInChildren<Text>();
+		//priceText = gameObject.GetComponentInChildren<Text>();
 		himeiSource = gameObject.GetComponent<AudioSource>();
 	}
 
@@ -28,7 +28,6 @@ public abstract class PriceSystem : MonoBehaviour {
 		CalcPrice();
 		AddPrice();
 		UpdateImage();
-		UpdatePriceText();
 	}
 
 	private void AddPrice() {
@@ -43,8 +42,8 @@ public abstract class PriceSystem : MonoBehaviour {
 		return characterImage.sprite;
 	}
 
-	protected void UpdatePriceText() {
-		priceText.text = price.ToString("F2");
+	protected void PlayHimei() {
+		if(!Game.Instance.GetMute())himeiSource.Play();
 	}
 
 	public abstract List<Sprite> GetImages();

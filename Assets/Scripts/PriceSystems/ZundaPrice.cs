@@ -42,7 +42,7 @@ public class ZundaPrice : PriceSystem {
 		} else if(modifyNum > -10) {
 			characterImage.sprite = images[2];
 		} else if(modifyNum > -30) {
-			himeiSource.Play();
+			PlayHimei();
 			characterImage.sprite = images[3];
 		} else {
 			characterImage.sprite = images[4];

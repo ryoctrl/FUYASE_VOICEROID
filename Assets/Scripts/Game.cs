@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Game : SingletonMonoBehaviour<Game> {
-	public const float GAME_SPEED = 3f;
+	public const float GAME_SPEED = 2f;
 
 	private GameObject mainPanel;
 	private RectTransform mainRect;
@@ -15,7 +15,7 @@ public class Game : SingletonMonoBehaviour<Game> {
 	private Text calendarText;
 	private Text timeLimitText;
 	private Text totalAssetsText;
-	private Text assetsText;
+	public Text assetsText;
 
 	private int time = 0;
 	private int goal = 100000;
@@ -26,6 +26,16 @@ public class Game : SingletonMonoBehaviour<Game> {
 	
 	private GameObject pauseButton;
 	private GameObject speedButton;
+
+	private bool muting = false;
+
+	public void SetMute(bool muting) {
+		this.muting = muting;
+	}
+
+	public bool GetMute() {
+		return muting;
+	}
 
 	private bool pausing = false;
 
@@ -45,7 +55,7 @@ public class Game : SingletonMonoBehaviour<Game> {
 
 	public void ChangeMainCurrency(AbstractCurrency currency) {
 		mainCurrency = currency;
-		Chart.Instance.SetPrices(mainCurrency.GetPrices(), mainCurrency.GetName());
+		Chart.Instance.SetPrices(mainCurrency.GetPrices(), mainCurrency.GetName(), mainCurrency.GetColor());
 
 	}
 
@@ -64,7 +74,6 @@ public class Game : SingletonMonoBehaviour<Game> {
 		calendarText = GameObject.Find("CalendarText").GetComponent<Text>();
 		timeLimitText = GameObject.Find("TimelimitText").GetComponent<Text>();
 		totalAssetsText = GameObject.Find("TotalAssetsText").GetComponent<Text>();
-		assetsText = GameObject.Find("AssetsText").GetComponent<Text>();
 		pauseButton = GameObject.Find("PauseButton");
 		speedButton = GameObject.Find("SpeedButton");
 	}

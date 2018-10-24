@@ -5,16 +5,14 @@ using UnityEngine.UI;
 
 public class AoiCurrency : AbstractCurrency {
 
-	// Use this for initialization
 	void Start () {
 		name = "AOI";
-		assetsText = GameObject.Find("AoiAssetsText").GetComponent<Text>();
+		myColor = Color.cyan;
 		Initialize();
 	}
 	
-	// Update is called once per frame
 	void Update () {
-		assetsText.text = assets.ToString("F2");
+		UpdateTexts();
 	}
 
 	public void ClickOneBuyButton() {

@@ -21,9 +21,10 @@ public class Chart : SingletonMonoBehaviour<Chart> {
 	private List<GameObject> lines = new List<GameObject>();
 	private bool changed = false;
 
-	public void SetPrices(List<float> prices, string name) {
+	public void SetPrices(List<float> prices, string name, Color color) {
 		this.prices = prices;
 		chartNameText.text = name + "/JPY";
+		chartNameText.color = color;
 		changed = true;
 	}
 
@@ -81,7 +82,7 @@ public class Chart : SingletonMonoBehaviour<Chart> {
 		GameObject lineObj = new GameObject();
 		lineObj.transform.SetParent(chartPanel.transform);
 		LineRenderer line = lineObj.AddComponent<LineRenderer>();
-		//line.material = new Material(Shader.Find("UI/Default"));
+		line.material = new Material(Shader.Find("Standard"));
 
 		line.positionCount = 2;
 		line.startWidth = 0.5f;

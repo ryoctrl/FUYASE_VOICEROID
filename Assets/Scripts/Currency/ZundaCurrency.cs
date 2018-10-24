@@ -9,13 +9,13 @@ public class ZundaCurrency : AbstractCurrency {
 	// Use this for initialization
 	void Start () {
 		name = "ZND";
-		assetsText = GameObject.Find("ZundaAssetsText").GetComponent<Text>();
+		myColor = Color.green;
 		Initialize();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		assetsText.text = assets.ToString("F2");
+		UpdateTexts();
 	}
 
 	public void ClickOneBuyButton() {
