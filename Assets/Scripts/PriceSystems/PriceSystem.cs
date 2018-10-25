@@ -12,7 +12,6 @@ public abstract class PriceSystem : MonoBehaviour {
 
 	public void Start () {
 		characterImage = gameObject.GetComponentInChildren<Image>();
-		//priceText = gameObject.GetComponentInChildren<Text>();
 		himeiSource = gameObject.GetComponent<AudioSource>();
 	}
 
@@ -49,4 +48,24 @@ public abstract class PriceSystem : MonoBehaviour {
 	public abstract List<Sprite> GetImages();
 	protected abstract void CalcPrice();
 	protected abstract void UpdateImage();
+
+	public override string ToString() {
+		string result = "";
+		foreach(float p in prices) {
+			result += p.ToString("F2");
+			result += ",";
+		}
+		result = result.Substring(0, result.Length - 1);
+		return result;
+	}
+
+	public void SetPrices(string pricesText) {
+		string[] prices = pricesText.Split(',');
+		this.prices = new List<float>();
+		foreach(string price in prices) {
+			float p = float.Parse(price);
+			this.prices.Add(p);
+			this.price = p;
+		}
+	}
 }

@@ -22,7 +22,7 @@ public class YukariCurrency : AbstractCurrency {
 	}
 
 	public void ClickFiveBuyButton() {
-		Trade(5, true);
+		Trade(10, true);
 	}
 
 	public void ClickOneSellButton() {
@@ -30,7 +30,7 @@ public class YukariCurrency : AbstractCurrency {
 	}
 
 	public void ClickFiveSellButton() {
-		Trade(5, false);
+		Trade(10, false);
 	}
 
 	public void ChangeChart() {

@@ -12,6 +12,7 @@ public abstract class AbstractCurrency : MonoBehaviour {
 	protected Color myColor;
 	protected float assets;
 	public float miningEfficiency;
+	protected float averageAcquisitionPrice;
 	public GameObject levelUpPrefab;
 	protected int level = 1;
 	protected string name;
@@ -26,8 +27,9 @@ public abstract class AbstractCurrency : MonoBehaviour {
 			//else Debug.Log(obj.name);
 		}
 		priceSystem = GetComponent<PriceSystem>();
-		Game.Instance.AddCurrency(this);
 		assets = 0;
+		Game.Instance.AddCurrency(this);
+
 		assetsText.color = myColor;
 		valuationText.color = myColor;
 	}
@@ -45,6 +47,19 @@ public abstract class AbstractCurrency : MonoBehaviour {
 
 	public string GetName() {
 		return name;
+	}
+
+	public int GetLv() {
+		return level;
+	}
+
+	public void SetLv(int level) {
+		this.level = level;
+		UpdateLevelText();
+	}
+
+	public void SetAssets(float assets) {
+		this.assets = assets;
 	}
 
 	public List<float> GetPrices() {
@@ -73,17 +88,21 @@ public abstract class AbstractCurrency : MonoBehaviour {
 
 	protected void Trade(int amount, bool isBuy) {
 		float needAssets = amount * priceSystem.GetPrice();
+		float allPrice = assets * averageAcquisitionPrice;
 		if(isBuy) {
 			if(needAssets <= Game.Instance.GetFiatAssets()) {
 				Game.Instance.ChangeAssets(-needAssets);
 				assets += amount;
+				averageAcquisitionPrice = (allPrice + needAssets) / (amount + assets);
 			}
 		} else {
 			if(amount <= assets) {
 				assets -= amount;
 				Game.Instance.ChangeAssets(needAssets);
+				averageAcquisitionPrice = (allPrice - needAssets) / (assets - amount);
 			}
 		}
+		//Debug.Log(name + "コインの平均取得価格 : " + averageAcquisitionPrice);
 	}
 
 	public void ClickLevelUp() {
@@ -94,7 +113,20 @@ public abstract class AbstractCurrency : MonoBehaviour {
 
 	public void LevelUp() {
 		level++;
+		UpdateLevelText();
+	}
+
+	private void UpdateLevelText() {
 		levelText.text = level.ToString();
+	}
+
+	public override string ToString() {
+		return priceSystem.ToString();
+	}
+
+	public void SetPrices(string pricesText) {
+		priceSystem.SetPrices(pricesText);
+		foreach(float p in priceSystem.GetPrices()) Debug.Log(p);
 	}
 
 	

@@ -3,31 +3,38 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Game : SingletonMonoBehaviour<Game> {
-	public const float GAME_SPEED = 2f;
-
-	private GameObject mainPanel;
-	private RectTransform mainRect;
-	private GameObject statusPanel;
-	private RectTransform statusRect;
+	public const float GAME_SPEED = 24f;
 
 	private Text calendarText;
 	private Text timeLimitText;
 	private Text totalAssetsText;
 	public Text assetsText;
+	private Slider speedSlider;
+	public GameObject panelPrefab;
 
 	private int time = 0;
-	private int goal = 100000;
+	private int loan = 100000;
 	private float totalAssets;
 	private float assets;
-	private DateTime now = DateTime.Now;
+	private DateTime now;
 	private DateTime limitTime;
 	
 	private GameObject pauseButton;
 	private GameObject speedButton;
 
 	private bool muting = false;
+	private bool pausing = false;
+
+	private int speed = 1;
+	private float timer = 0;
+	
+	private List<PriceSystem> priceSystems = new List<PriceSystem>();
+	private List<AbstractCurrency> currencies = new List<AbstractCurrency>();
+	private AbstractCurrency mainCurrency;
+	private Image characterImage;
 
 	public void SetMute(bool muting) {
 		this.muting = muting;
@@ -37,18 +44,50 @@ public class Game : SingletonMonoBehaviour<Game> {
 		return muting;
 	}
 
-	private bool pausing = false;
+	public float GetFiatAssets() {
+		return assets;
+	}
 
-	private int speed = 1;
-	
-	private List<PriceSystem> priceSystems = new List<PriceSystem>();
-	private List<AbstractCurrency> currencies = new List<AbstractCurrency>();
-	private AbstractCurrency mainCurrency;
-	private Image characterImage;
+	void Start () {
+		if(PlayerPrefs.HasKey("save")) {
+			LoadGame();
+		} else {
+			assets = 100000;
+			totalAssets = -assets;
+			now = DateTime.Now;
+			limitTime = now.AddYears(1);
+		}
+		
+		characterImage = GameObject.Find("MainCharacterImage").GetComponent<Image>();
+
+		calendarText = GameObject.Find("CalendarText").GetComponent<Text>();
+		timeLimitText = GameObject.Find("TimelimitText").GetComponent<Text>();
+		totalAssetsText = GameObject.Find("TotalAssetsText").GetComponent<Text>();
+		speedSlider = GameObject.Find("SpeedSlider").GetComponent<Slider>();
+		pauseButton = GameObject.Find("PauseButton");
+	}
+
+	void Update () {
+		CheckLimit();
+		UpdateStatus();
+		if(pausing) return;
+
+		timer += Time.deltaTime;
+		if(timer > GAME_SPEED / speed) {
+			foreach(AbstractCurrency currency in currencies) {
+				currency.NewTick();
+				currency.Mining();
+			}
+			//characterImage.sprite = mainCurrency.GetCurrentImage();
+			timer = 0;
+		}
+		now = now.AddMinutes(1440 / GAME_SPEED * speed * Time.deltaTime);
+	}
 
 	public void AddCurrency(AbstractCurrency currency) {
 		currencies.Add(currency);
-		if(mainCurrency == null) {
+		if(PlayerPrefs.HasKey("save")) LoadCurrency(currency);
+		if((PlayerPrefs.HasKey("MainCurrency") && PlayerPrefs.GetString("MainCurrency") == currency.GetName()) || mainCurrency == null) {
 			ChangeMainCurrency(currency);
 		}
 	}
@@ -56,78 +95,19 @@ public class Game : SingletonMonoBehaviour<Game> {
 	public void ChangeMainCurrency(AbstractCurrency currency) {
 		mainCurrency = currency;
 		Chart.Instance.SetPrices(mainCurrency.GetPrices(), mainCurrency.GetName(), mainCurrency.GetColor());
-
-	}
-
-	void Start () {
-		assets = 100000;
-		totalAssets = assets;
-
-		limitTime = now.AddYears(1);
-		mainPanel = GameObject.Find("MainBack");
-		mainRect = mainPanel.GetComponent<RectTransform>();
-		characterImage = GameObject.Find("MainCharacterImage").GetComponent<Image>();
-
-		statusPanel = GameObject.Find("TopBack");
-		statusRect = statusPanel.GetComponent<RectTransform>();
-
-		calendarText = GameObject.Find("CalendarText").GetComponent<Text>();
-		timeLimitText = GameObject.Find("TimelimitText").GetComponent<Text>();
-		totalAssetsText = GameObject.Find("TotalAssetsText").GetComponent<Text>();
-		pauseButton = GameObject.Find("PauseButton");
-		speedButton = GameObject.Find("SpeedButton");
 	}
 
 	public void Pause() {
-		if(pausing) {
-			pauseButton.GetComponentInChildren<Text>().text = "||";
-			pausing = false;
-		} else {
-			pauseButton.GetComponentInChildren<Text>().text = "▶";
-			pausing = true;
-		}
+		pausing = !pausing;
+		pauseButton.GetComponentInChildren<Text>().text = pausing ? "▶" : "||";
 	}
 	
 	public void SpeedChange() {
-		if(speed == 1) {
-			speed++;
-		} else if(speed == 2) {
-			speed++;
-		} else if(speed == 3) {
-			speed = 1;	
-		}
-
-		string buttonText = "▶";
-		for(int i = 1; i < speed; i++) buttonText += "▶";
-
-		speedButton.GetComponentInChildren<Text>().text = buttonText;
-	}
-
-	public float GetFiatAssets() {
-		return assets;
+		speed = (int)speedSlider.value;
 	}
 
 	public void ChangeAssets(float change) {
 		assets += change;
-	}
-
-	
-	private float timer = 0;
-	// Update is called once per frame
-	void Update () {
-		if(pausing) return;
-		timer += Time.deltaTime;
-		if(timer > GAME_SPEED / speed) {
-			foreach(AbstractCurrency currency in currencies) {
-				currency.NewTick();
-				currency.Mining();
-			}
-			//Chart.Instance.AddPrice(mainCurrency.GetPrice());
-			//characterImage.sprite = mainCurrency.GetCurrentImage();
-			timer = 0;
-		}
-		now = now.AddMinutes(1440 / GAME_SPEED * speed * Time.deltaTime);
-		UpdateStatus();
 	}
 
 	private void UpdateStatus(){
@@ -162,13 +142,61 @@ public class Game : SingletonMonoBehaviour<Game> {
 	}
 
 	private void UpdateTotalAssets() {
-		float totalAsettsAsFiat = assets;
+		float totalAsettsAsFiat = assets - loan;
 		foreach(AbstractCurrency ac in currencies) totalAsettsAsFiat += ac.GetPrice() * ac.GetAssets(); 
 		totalAssetsText.text = totalAsettsAsFiat.ToString("#,0") + "yen";
-
 	}
 
 	private void UpdateAssets() {
 		assetsText.text = assets.ToString("#,0") + "yen";
+	}
+
+	private void CheckLimit() {
+		if(now - limitTime > TimeSpan.Zero) {
+			SceneManager.LoadScene("GameOverScene");
+		}
+	}
+
+	public void SaveGame() {
+
+		PlayerPrefs.SetInt("save", 1);
+		PlayerPrefs.SetString("now", now.ToString("yyyy/MM/dd HH:mm:ss"));
+		PlayerPrefs.SetString("limitTime", limitTime.ToString("yyyy/MM/dd HH:mm:ss"));
+		PlayerPrefs.SetFloat("fiat", assets);
+		PlayerPrefs.SetString("MainCurrency", mainCurrency.GetName());
+		foreach(AbstractCurrency currency in currencies) {
+			PlayerPrefs.SetFloat(currency.GetName() + "Assets", currency.GetAssets());
+			PlayerPrefs.SetInt(currency.GetName() + "Lv", currency.GetLv());
+			PlayerPrefs.SetString(currency.GetName() + "Prices", currency.ToString());
+		}
+	}
+
+	public void LoadGame() {
+		string nowStr = PlayerPrefs.GetString("now");
+		string limitStr = PlayerPrefs.GetString("limitTime");
+		float assets = PlayerPrefs.GetFloat("fiat");
+		if(nowStr == null || limitStr == null) return;
+		this.now = DateTime.Parse(nowStr);
+		this.limitTime = DateTime.Parse(limitStr);
+		this.assets = assets;
+	}
+
+	private void LoadCurrency(AbstractCurrency currency) {
+		currency.SetAssets(PlayerPrefs.GetFloat(currency.GetName() + "Assets"));
+		currency.SetLv(PlayerPrefs.GetInt(currency.GetName() + "Lv"));
+		currency.SetPrices(PlayerPrefs.GetString(currency.GetName() + "Prices"));
+	}
+
+	public void ClickSaveAndExit() {
+		SaveGame();
+		SceneManager.LoadScene("TitleScene");
+	}
+
+	public void ClickLoan() {
+		GameObject loanPanel = Instantiate(panelPrefab);
+		loanPanel.transform.SetParent(GameObject.Find("MainBack").transform, false);
+		// GameObject levelupPanel = Instantiate(panelPrefab);
+		// levelupPanel.transform.SetParent(transform, false);
+		// levelupPanel.GetComponent<LevelUpPanelScript>().setPriceAndCurrency(100 * level, this);
 	}
 }
