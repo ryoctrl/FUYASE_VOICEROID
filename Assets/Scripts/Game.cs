@@ -124,7 +124,7 @@ public class Game : SingletonMonoBehaviour<Game> {
 		calText += now.Month.ToString("D2");
 		calText += "月";
 		calText += now.Day.ToString("D2");
-		calText += " ";
+		calText += "日 ";
 		calText += now.Hour.ToString("D2");
 		calText += ":";
 		calText += now.Minute.ToString("D2");
