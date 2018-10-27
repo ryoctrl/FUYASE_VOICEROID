@@ -7,7 +7,7 @@ public class YukariCurrency : AbstractCurrency {
 
 	// Use this for initialization
 	void Start () {
-		name =  "YKR";
+		currencyName =  "YKR";
 		myColor = new Color32(215, 179, 227, 255);
 		Initialize();
 	}

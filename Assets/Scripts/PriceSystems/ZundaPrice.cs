@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ZundaPrice : PriceSystem {
-	private float initialPrice = 200.0f;
+	public float initialPrice = 200.0f;
 	private float volatilityIndex;
 	private float modifyNum = 0;
 

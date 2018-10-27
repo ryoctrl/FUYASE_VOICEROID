@@ -8,7 +8,7 @@ public class ZundaCurrency : AbstractCurrency {
 
 	// Use this for initialization
 	void Start () {
-		name = "ZND";
+		currencyName = "ZND";
 		myColor = Color.green;
 		Initialize();
 	}

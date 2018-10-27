@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class AoiCurrency : AbstractCurrency {
 
 	void Start () {
-		name = "AOI";
+		currencyName = "AOI";
 		myColor = Color.cyan;
 		Initialize();
 	}

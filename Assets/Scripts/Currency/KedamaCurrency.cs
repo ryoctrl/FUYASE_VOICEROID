@@ -7,7 +7,7 @@ public class KedamaCurrency : AbstractCurrency {
 
 	// Use this for initialization
 	void Start () {
-		name = "KDM";
+		currencyName = "KDM";
 		myColor = Color.yellow;
 		Initialize();
 	}

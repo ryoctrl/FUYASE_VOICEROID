@@ -42,7 +42,7 @@ public abstract class PriceSystem : MonoBehaviour {
 	}
 
 	protected void PlayHimei() {
-		if(!Game.Instance.GetMute())himeiSource.Play();
+		himeiSource.Play();
 	}
 
 	public abstract List<Sprite> GetImages();
@@ -55,11 +55,12 @@ public abstract class PriceSystem : MonoBehaviour {
 			result += p.ToString("F2");
 			result += ",";
 		}
-		result = result.Substring(0, result.Length - 1);
+		result = result.Length > 1 ? result.Substring(0, result.Length - 1) : result;
 		return result;
 	}
 
 	public void SetPrices(string pricesText) {
+		if(pricesText == null) return;
 		string[] prices = pricesText.Split(',');
 		this.prices = new List<float>();
 		foreach(string price in prices) {

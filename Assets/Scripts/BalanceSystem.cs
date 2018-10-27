@@ -23,9 +23,6 @@ public class BalanceSystem : SingletonMonoBehaviour<BalanceSystem> {
 	void Start () {
 		price = initialPrice;
 	}
-	
-	private bool setted = false;
-	private float timer = 0;
 
 	public void newTick() {
 		calcPrice();

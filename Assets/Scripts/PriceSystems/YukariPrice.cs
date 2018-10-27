@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class YukariPrice : PriceSystem {
-	private float initialPrice = 100.0f;
+	public float initialPrice = 175.0f;
 	private float volatilityIndex;
 	private float modifyNum = 0;
 

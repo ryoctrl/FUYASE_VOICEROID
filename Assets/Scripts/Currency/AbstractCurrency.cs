@@ -9,13 +9,14 @@ public abstract class AbstractCurrency : MonoBehaviour {
 	protected Text valuationText;
 	protected Text priceText;
 	protected Text levelText;
+	protected Text percentageText;
 	protected Color myColor;
 	protected float assets;
 	public float miningEfficiency;
 	protected float averageAcquisitionPrice;
 	public GameObject levelUpPrefab;
 	protected int level = 1;
-	protected string name;
+	protected string currencyName;
 
 	protected void Initialize() {
 		Text[] objects = GetComponentsInChildren<Text>();
@@ -24,7 +25,7 @@ public abstract class AbstractCurrency : MonoBehaviour {
 			else if(obj.name == "ValuationText") valuationText = obj;
 			else if(obj.name == "PriceText") priceText = obj;
 			else if(obj.name == "LevelText") levelText = obj;
-			//else Debug.Log(obj.name);
+			else if(obj.name == "PercentageText") percentageText = obj;
 		}
 		priceSystem = GetComponent<PriceSystem>();
 		assets = 0;
@@ -37,8 +38,25 @@ public abstract class AbstractCurrency : MonoBehaviour {
 	protected void UpdateTexts() {
 		assetsText.text = assets.ToString("F2");
 		valuationText.text = (assets * priceSystem.GetPrice()).ToString("F2");
-		if(priceText == null) Debug.Log("priceText is null!");
-		else priceText.text = priceSystem.GetPrice().ToString("F2");
+		priceText.text = priceSystem.GetPrice().ToString("F2");
+		UpdatePercentage();
+		UpdateLevelText();
+	}
+
+	private List<float> percentagePrices = null;
+	private float latest, old;
+	protected void UpdatePercentage() {
+		percentagePrices = GetPrices();
+		if(percentagePrices.Count < 7) return;
+		latest = percentagePrices[percentagePrices.Count - 1];
+		old = percentagePrices[percentagePrices.Count - 7];
+		if(latest >= old) {
+			percentageText.color = new Color32(0, 11, 255, 255);
+			percentageText.text = "▲ " + (((latest - old) / old) * 100).ToString("F2");
+		} else {
+			percentageText.color = new Color(255, 0, 0, 255);
+			percentageText.text = "▼ " + (((latest - old) / old) * 100).ToString("F2");
+		}
 	}
 
 	public Color GetColor() {
@@ -46,7 +64,7 @@ public abstract class AbstractCurrency : MonoBehaviour {
 	}
 
 	public string GetName() {
-		return name;
+		return currencyName;
 	}
 
 	public int GetLv() {
@@ -102,13 +120,12 @@ public abstract class AbstractCurrency : MonoBehaviour {
 				averageAcquisitionPrice = (allPrice - needAssets) / (assets - amount);
 			}
 		}
-		//Debug.Log(name + "コインの平均取得価格 : " + averageAcquisitionPrice);
 	}
 
 	public void ClickLevelUp() {
 		GameObject levelupPanel = Instantiate(levelUpPrefab);
 		levelupPanel.transform.SetParent(transform, false);
-		levelupPanel.GetComponent<LevelUpPanelScript>().setPriceAndCurrency(100 * level, this);
+		levelupPanel.GetComponent<LevelUpPanelScript>().setPriceAndCurrency(1000 * level, this);
 	}
 
 	public void LevelUp() {
@@ -117,16 +134,16 @@ public abstract class AbstractCurrency : MonoBehaviour {
 	}
 
 	private void UpdateLevelText() {
-		levelText.text = level.ToString();
+		levelText.text = (level * miningEfficiency).ToString() + "/日";
 	}
 
 	public override string ToString() {
-		return priceSystem.ToString();
+		string result = priceSystem.ToString();
+		return result;
 	}
 
 	public void SetPrices(string pricesText) {
 		priceSystem.SetPrices(pricesText);
-		foreach(float p in priceSystem.GetPrices()) Debug.Log(p);
 	}
 
 	

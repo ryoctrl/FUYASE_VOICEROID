@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class AoiPrice : PriceSystem {
-	private float initialPrice = 100.0f;
+	public float initialPrice = 100.0f;
 	private float volatilityIndex;
 	private float modifyNum = 0;
 
