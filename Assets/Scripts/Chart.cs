@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 
 public class Chart : SingletonMonoBehaviour<Chart> {
+	private const int DEFAULT_NUM_OF_CHART = 48;
 	private List<float> prices = new List<float>();
 	private GameObject chartPanel;
 	private float panelHeight = 0;
@@ -64,6 +65,9 @@ public class Chart : SingletonMonoBehaviour<Chart> {
 		middleText.text = ((max + min) / 2).ToString("F2");
 
 		float diff = max - min;
+		// float numOfChart = prices.Count > DEFAULT_NUM_OF_CHART ? DEFAULT_NUM_OF_CHART : prices.Count;
+		// Debug.Log(numOfChart);
+		// for(int i = 0; i < numOfChart - 1; i++) {
 		for(int i = 0; i < prices.Count - 1; i++) {
 			float startPrice = prices[i];
 			float endPrice = prices[i + 1];

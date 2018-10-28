@@ -21,13 +21,16 @@ public class Title : MonoBehaviour {
 		highScoreText = GameObject.Find("HighScoreText").GetComponent<Text>();
 		highScoreInit();
 		if(PlayerPrefs.HasKey("uid")) return;
+		OpenRegisterUserName();
+	}
+
+	private void OpenRegisterUserName() {
 		GameObject userRegistPanel = Instantiate(inputPanel);
 		userRegistPanel.transform.SetParent(canvas.transform, false);
 		userRegistPanel.GetComponent<InputPanel>().SetOkClicked((name) => {
 			if(name == null || name == "") name = "NoName";
 			PlayerPrefs.SetString("uid", name);
 		});
-
 	}
 
 	private void highScoreInit() {
@@ -62,19 +65,11 @@ public class Title : MonoBehaviour {
 		confirm.transform.SetParent(canvas.transform, false);
 		confirm.GetComponent<ConfirmPanel>().SetMessage("セーブデータを削除してよろしいですか？");
 		confirm.GetComponent<ConfirmPanel>().SetOkDelegate(() => {
-			bool hasOnline = false;
-			string name = "";
-			if(PlayerPrefs.HasKey("uid")) {
-				hasOnline = true;
-				name = PlayerPrefs.GetString("uid");
-			}
 			PlayerPrefs.DeleteAll();
-			if(hasOnline) {
-				PlayerPrefs.SetString("uid", name);
-			}
 			GameObject complete = Instantiate(messagePanel);
 			complete.transform.SetParent(canvas.transform, false);
 			complete.GetComponent<MessagePanel>().SetMessage("セーブデータを削除しました");
+			OpenRegisterUserName();
 		});
 	}
 

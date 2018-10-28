@@ -17,7 +17,6 @@ public class MovieScene : MonoBehaviour {
 		videoPlayer.loopPointReached += VideoEnded;
 		if(videoPlayer.clip != null) {
 			videoPlayer.Play();
-
 		}
 	}
 	

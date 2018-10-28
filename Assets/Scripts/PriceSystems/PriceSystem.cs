@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public abstract class PriceSystem : MonoBehaviour {
+	private const int MAXIMUM_NUM_OF_PRICE = 144;
 	protected float price;
 	protected Image characterImage;
 	protected Text priceText;
@@ -30,6 +31,7 @@ public abstract class PriceSystem : MonoBehaviour {
 	}
 
 	private void AddPrice() {
+		//if(prices.Count == MAXIMUM_NUM_OF_PRICE) {
 		if(prices.Count == 48) {
 			prices.RemoveAt(0);
 		}
