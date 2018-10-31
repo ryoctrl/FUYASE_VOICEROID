@@ -4,6 +4,7 @@ using System.Linq;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 
 public class Chart : SingletonMonoBehaviour<Chart> {
@@ -44,9 +45,12 @@ public class Chart : SingletonMonoBehaviour<Chart> {
 	}
 	
 	void Update () {
+		PointerOnChart();
 		UpdateRect();
 		DrawChart();
 	}
+
+
 	
 	private void UpdateRect() {
 		panelHeight = panelRect.rect.height;
@@ -73,12 +77,12 @@ public class Chart : SingletonMonoBehaviour<Chart> {
 			float endPrice = prices[i + 1];
 			Vector3 start = new Vector3(panelWidth / (prices.Count + 1) * (i + 1), panelHeight *  (startPrice - min) / diff, 90);
 			Vector3 end = new Vector3(panelWidth / (prices.Count + 1) * (i + 2), panelHeight * (endPrice - min) / diff, 90);
-			AddLine(start, end);
+			lines.Add(AddLine(start, end));
 		}
 		changed = false;
 	}
 
-	private void AddLine(Vector3 start, Vector3 end) {
+	private GameObject AddLine(Vector3 start, Vector3 end) {
 		start = chartPanel.transform.TransformPoint(start);
 		end = chartPanel.transform.TransformPoint(end);
 		start.z = 90;
@@ -95,6 +99,29 @@ public class Chart : SingletonMonoBehaviour<Chart> {
 		line.SetPosition(1, end);
 		Color c = start.y > end.y ? Color.red : Color.blue;
 		line.material.color = c;
-		lines.Add(lineObj);
+		return lineObj;
+	}
+
+	private bool pointerOnChart = false;
+
+	public void PointerEnter(BaseEventData data) {
+		pointerOnChart = true;		
+	}
+	
+	public void PointerExit(BaseEventData data) {
+		pointerOnChart = false;
+	}
+
+	private List<GameObject> pointerLines = new List<GameObject>();
+	private void PointerOnChart() {
+		foreach(GameObject line in pointerLines) Destroy(line.gameObject);
+		if(!pointerOnChart) return;
+
+		Vector3 mousePos = Input.mousePosition;
+		mousePos.z = 90;
+		mousePos = Camera.main.ScreenToWorldPoint(mousePos);
+		mousePos = chartPanel.transform.InverseTransformPoint(mousePos);
+	
+		pointerLines.Add(AddLine(new Vector3(mousePos.x, 0, 0), new Vector3(mousePos.x, panelHeight, 0)));
 	}
 }

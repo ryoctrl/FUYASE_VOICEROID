@@ -9,6 +9,7 @@ public abstract class AbstractCurrency : MonoBehaviour {
 	protected Text valuationText;
 	protected Text priceText;
 	protected Text levelText;
+	protected Text messageText;
 	protected Text percentageText;
 	protected Color myColor;
 	protected float assets;
@@ -27,6 +28,7 @@ public abstract class AbstractCurrency : MonoBehaviour {
 			else if(obj.name == "PriceText") priceText = obj;
 			else if(obj.name == "LevelText") levelText = obj;
 			else if(obj.name == "PercentageText") percentageText = obj;
+			else if(obj.name == "MessageText") messageText = obj;
 		}
 		priceSystem = GetComponent<PriceSystem>();
 		assets = 0;
