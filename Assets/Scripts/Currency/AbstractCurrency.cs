@@ -17,6 +17,7 @@ public abstract class AbstractCurrency : MonoBehaviour {
 	public GameObject levelUpPrefab;
 	protected int level = 1;
 	protected string currencyName;
+	protected TradePanel trader;
 
 	protected void Initialize() {
 		Text[] objects = GetComponentsInChildren<Text>();
@@ -33,6 +34,9 @@ public abstract class AbstractCurrency : MonoBehaviour {
 
 		assetsText.color = myColor;
 		valuationText.color = myColor;
+
+		trader = GetComponentInChildren<TradePanel>();
+		trader.SetCurrency(this);
 	}
 
 	protected void UpdateTexts() {
@@ -104,7 +108,7 @@ public abstract class AbstractCurrency : MonoBehaviour {
 		return priceSystem.GetCurrentImage();
 	}
 
-	protected void Trade(int amount, bool isBuy) {
+	public void Trade(int amount, bool isBuy) {
 		float needAssets = amount * priceSystem.GetPrice();
 		float allPrice = assets * averageAcquisitionPrice;
 		if(isBuy) {
@@ -114,11 +118,11 @@ public abstract class AbstractCurrency : MonoBehaviour {
 				averageAcquisitionPrice = (allPrice + needAssets) / (amount + assets);
 			}
 		} else {
-			if(amount <= assets) {
-				assets -= amount;
-				Game.Instance.ChangeAssets(needAssets);
-				averageAcquisitionPrice = (allPrice - needAssets) / (assets - amount);
-			}
+			float amountFlt = amount <= assets ? amount : assets;
+			assets -= amountFlt;
+			needAssets = amountFlt * priceSystem.GetPrice();
+			Game.Instance.ChangeAssets(needAssets);
+			averageAcquisitionPrice = (allPrice - needAssets) / (assets - amount);
 		}
 	}
 
